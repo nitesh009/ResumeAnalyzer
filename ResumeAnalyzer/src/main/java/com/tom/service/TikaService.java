@@ -1,8 +1,10 @@
 package com.tom.service;
 
+import java.util.List;
+
 public interface TikaService {
 	
 	//get the server location and parse the files and storeinto destination locations
-	public void parseRawFiles(String sourceLocation,String destinationLocation);
+	public List<String> parseRawFiles(String sourceLocation);
 
 }
