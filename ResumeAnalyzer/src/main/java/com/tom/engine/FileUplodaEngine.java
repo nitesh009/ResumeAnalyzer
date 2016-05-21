@@ -39,7 +39,6 @@ public class FileUplodaEngine {
 	public String uploadMultipleFiles(@RequestParam("uploadedFile") MultipartFile[] files,MultipartHttpServletRequest request) throws ResumeAnalyzerServiceException{
 		
 		System.out.println("Nitesh multiple file upload request came: "+files.length);
-		
 		fileuploadservice.saveMultibleFiles(files);
 		return "File Uploaded Successfully";
 				

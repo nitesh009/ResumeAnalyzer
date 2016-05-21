@@ -17,7 +17,8 @@ public class MainEngine {
 		
 	@RequestMapping(value="/test",method=RequestMethod.GET)
 	public String getTest(HttpServletRequest request) throws IOException, TikaException, SAXException{
-		//System.out.println("Context Path: "+request.getServletContext().getContextPath());
+		System.out.println("request.getContextPath(): "+request.getContextPath());
+		System.out.println("request.getServletContext().getContextPath(): "+request.getServletContext().getContextPath());
 		return "CV Analyzer Server Is running, context path is: "+request.getServletContext().getContextPath();
 		
 	}
