@@ -1,5 +1,7 @@
 package com.tom.dao;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.json.simple.JSONObject;
@@ -40,7 +42,7 @@ public class QueryDaoImpl implements QueryDao {
 	@Override
 	public JSONObject getGeneralQuery(QueryEngineReqDTO queryDTO) {
 
-		
+
 
 		int totalEmployee=0;
 		int selectedEmployee=0;
@@ -52,30 +54,39 @@ public class QueryDaoImpl implements QueryDao {
 
 		BasicDBObject query = new BasicDBObject();
 
-		//lower bound of experience
-		if(null!=queryDTO.getYearsOfExpLowerBound()&&(null!=queryDTO.getYearsOfExpUpperBound())){
-			System.out.println("Inside getYearsOfExpLowerBound");
-			query.put("resumeData.WorkExperience", new BasicDBObject("$gte", Integer.parseInt(queryDTO.getYearsOfExpLowerBound())).append("$lte", Integer.parseInt(queryDTO.getYearsOfExpUpperBound())));
+		//experience
+		//todo:dirty logic need to change
+		if(null==queryDTO.getYearsOfExpLowerBound()){
+			queryDTO.setYearsOfExpLowerBound("0");
 		}
 
-		//skills
+		if(null==queryDTO.getYearsOfExpUpperBound()){
+			queryDTO.setYearsOfExpUpperBound("99");
+		}
 		
-//		if(null!=queryDTO.getSkills()){
-//			String[] skills = queryDTO.getSkills().split(",");
-//			
-//			
-//			
-//			for(String s:skills){
-//				
-//				query.put("resumeData.OtherNamedTags", java.util.regex.Pattern.compile(skills[0],Pattern.CASE_INSENSITIVE));
-//				
-//				query.put("resumeData.OtherNamedTags", java.util.regex.Pattern.compile(skills[1],Pattern.CASE_INSENSITIVE));
-//			}
-//			
-//		}
-		
+		System.out.println("Inside getYearsOfExpLowerBound");
+		query.put("resumeData.WorkExperience", new BasicDBObject("$gte", Integer.parseInt(queryDTO.getYearsOfExpLowerBound())).append("$lte", Integer.parseInt(queryDTO.getYearsOfExpUpperBound())));
+
+
+		//skills dirty code need to cleanup
+
+		if(null!=queryDTO.getSkills()&&!queryDTO.getSkills().equals("")){
+			String[] skills = queryDTO.getSkills().split(",");
+			List<String> list = new ArrayList<String>();
+
+			for(String s:skills){
+				list.add(s);
+			}
+
+			query.put("resumeData.OtherNamedTags", 
+			        new BasicDBObject("$regex",list.get(0) )
+			        .append("$options", "i"));
+
+		}
+
+
 		System.out.println("Final Query: "+query);
-		
+
 		DBCursor cursor = coll.find(query);
 
 		//loop to set the response

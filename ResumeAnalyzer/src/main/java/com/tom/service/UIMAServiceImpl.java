@@ -2,6 +2,7 @@ package com.tom.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
@@ -18,7 +19,6 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceSpecifier;
 import org.apache.uima.util.InvalidXMLException;
 import org.apache.uima.util.XMLInputSource;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,13 +49,26 @@ public class UIMAServiceImpl implements UIMAService{
 	{
 		System.out.println("Inside analyze and store cv");
 
-		JSONArray jsonArray = new JSONArray();
+		org.json.simple.JSONArray jsonArray = new org.json.simple.JSONArray();
 		for(String singleResume : parsedResumes){
 			JSONObject jsonObj = analyzeResume(singleResume,contextPath);
 			if (!jsonObj.isEmpty()) {
+				
+				//clear the string
+				String otherTags=(String) jsonObj.get("OtherNamedTags");
+				String[] otherTagsArray=otherTags.split(",");
+				ArrayList<String> list = new ArrayList<String>();
+				for(String s:otherTagsArray){
+					list.add(s);
+				}
+			
+				jsonObj.put("OtherNamedTags", list);
 				jsonArray.add(jsonObj);
 			}
 		}
+		
+		
+		
 		//saving the json array to db
 		uimaDao.saveParsedJsons(jsonArray);
 	}
