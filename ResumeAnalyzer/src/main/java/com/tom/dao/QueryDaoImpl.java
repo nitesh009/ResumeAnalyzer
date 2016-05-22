@@ -2,7 +2,6 @@ package com.tom.dao;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.tom.dto.GeneralQueryResponseDTO;
 import com.tom.dto.QueryEngineReqDTO;
@@ -46,6 +46,7 @@ public class QueryDaoImpl implements QueryDao {
 
 		int totalEmployee=0;
 		int selectedEmployee=0;
+		int unspecifiedCount=0;
 
 		DB db = mc.getDB("greythr_database");
 		DBCollection coll = db.getCollection("parsed_resume_db");
@@ -56,11 +57,12 @@ public class QueryDaoImpl implements QueryDao {
 
 		//experience
 		//todo:dirty logic need to change
-		if(null==queryDTO.getYearsOfExpLowerBound()){
+		if(null==(queryDTO.getYearsOfExpLowerBound())||"".equals(queryDTO.getYearsOfExpLowerBound())){
+			unspecifiedCount=getFresherCount();
 			queryDTO.setYearsOfExpLowerBound("0");
 		}
 
-		if(null==queryDTO.getYearsOfExpUpperBound()){
+		if(null==queryDTO.getYearsOfExpUpperBound()||"".equals(queryDTO.getYearsOfExpUpperBound())){
 			queryDTO.setYearsOfExpUpperBound("99");
 		}
 		
@@ -100,17 +102,29 @@ public class QueryDaoImpl implements QueryDao {
 		}
 
 		JSONObject respJson = new JSONObject();
-
+		
 		//total count
-		respJson.put("total", totalEmployee);	
+		respJson.put("Total", totalEmployee);	
 		//skills
-		respJson.put("selectedEmployee", selectedEmployee);
+		respJson.put("SelectedEmployee", selectedEmployee);
+		
+		//respJson.put("UnspeciedExperience", unspecifiedCount);
 
 		return respJson;
 	}
 
-
-
+//get freshers or unspecified
+	private int getFresherCount(){
+		
+		int fresherCount=0;
+		
+		DB db = mc.getDB("greythr_database");
+		DBCollection coll = db.getCollection("parsed_resume_db");
+		DBObject query = new BasicDBObject("resumeData.WorkExperience", new BasicDBObject("$exists", false));
+		DBCursor result = coll.find(query);
+		
+		return result.count();
+ }
 
 
 }
