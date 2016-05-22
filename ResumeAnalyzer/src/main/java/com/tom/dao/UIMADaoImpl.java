@@ -32,10 +32,12 @@ public class UIMADaoImpl implements UIMADao {
 		//get the db
 		//to do: clean the code
 		MongoDatabase db = mc.getDatabase("greythr_database");
+		
+		
 
 		for(JSONObject json:jsonList){
 			System.out.println(json.toJSONString());
-			db.getCollection("parsed_resume_db").insertOne(new Document("resumeData",json.toJSONString()));
+			db.getCollection("parsed_resume_db").insertOne(new Document("resumeData",json));
 		}
 	}
 
